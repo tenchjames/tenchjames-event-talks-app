@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const refreshBtn = document.getElementById('refreshBtn');
     const refreshIcon = document.getElementById('refreshIcon');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
     const statusIndicator = document.getElementById('statusIndicator');
     const statusText = document.getElementById('statusText');
     
@@ -294,6 +295,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <button class="action-icon-btn btn-copy-trigger" title="Copy link to clipboard" data-link="${updateAnchor}">
                                     <span class="material-symbols-outlined">link</span>
                                 </button>
+                                <button class="action-icon-btn btn-copy-text-trigger" title="Copy update text to clipboard">
+                                    <span class="material-symbols-outlined">content_copy</span>
+                                </button>
                                 <button class="action-icon-btn btn-tweet-trigger" title="Draft Tweet about this update">
                                     <svg class="twitter-logo-svg" viewBox="0 0 24 24" width="16" height="16">
                                         <path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
@@ -316,6 +320,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             showToast('Direct link copied to clipboard!', 'info');
                         }).catch(err => {
                             showToast('Could not copy link.', 'error');
+                        });
+                    });
+
+                    card.querySelector('.btn-copy-text-trigger').addEventListener('click', (e) => {
+                        navigator.clipboard.writeText(update.content_text).then(() => {
+                            showToast('Update content copied to clipboard!', 'info');
+                        }).catch(err => {
+                            showToast('Could not copy text.', 'error');
                         });
                     });
 
@@ -519,6 +531,78 @@ document.addEventListener('DOMContentLoaded', () => {
         activeFilter = 'all';
         renderTimeline();
     });
+
+    // Export currently filtered list to CSV file
+    function exportToCSV() {
+        if (!releaseData || !releaseData.entries) {
+            showToast('No data available to export.', 'error');
+            return;
+        }
+
+        const records = [];
+        releaseData.entries.forEach(entry => {
+            entry.updates.forEach(update => {
+                // Category Filter check
+                if (activeFilter !== 'all') {
+                    const currentType = update.type.toLowerCase();
+                    const filterType = activeFilter.toLowerCase();
+                    if (currentType !== filterType) return;
+                }
+                
+                // Keyword Search check
+                if (searchQuery.trim() !== '') {
+                    const text = update.content_text.toLowerCase();
+                    const query = searchQuery.toLowerCase();
+                    if (!text.includes(query) && !update.type.toLowerCase().includes(query)) return;
+                }
+                
+                records.push({
+                    date: entry.date,
+                    type: update.type,
+                    link: entry.link,
+                    content: update.content_text
+                });
+            });
+        });
+
+        if (records.length === 0) {
+            showToast('No matching records found to export.', 'error');
+            return;
+        }
+
+        // CSV formatting helpers
+        const headers = ['Date', 'Type', 'Source Link', 'Content Details'];
+        const escapeCsvVal = (val) => {
+            if (val === null || val === undefined) return '';
+            const cleaned = String(val).replace(/"/g, '""');
+            return `"${cleaned}"`;
+        };
+
+        let csvString = headers.map(escapeCsvVal).join(',') + '\n';
+        records.forEach(rec => {
+            const row = [rec.date, rec.type, rec.link, rec.content];
+            csvString += row.map(escapeCsvVal).join(',') + '\n';
+        });
+
+        // Trigger browser download
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const downloadUrl = URL.createObjectURL(blob);
+        const downloadAnchor = document.createElement('a');
+        const fileSuffix = activeFilter !== 'all' ? `_${activeFilter.toLowerCase()}` : '';
+        
+        downloadAnchor.setAttribute('href', downloadUrl);
+        downloadAnchor.setAttribute('download', `bigquery_releases${fileSuffix}.csv`);
+        downloadAnchor.style.visibility = 'hidden';
+        
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        document.body.removeChild(downloadAnchor);
+        
+        showToast(`Exported ${records.length} updates to CSV!`, 'success');
+    }
+
+    // Event Listeners: Export
+    exportCsvBtn.addEventListener('click', exportToCSV);
 
     // Event Listeners: Refresh
     refreshBtn.addEventListener('click', () => {

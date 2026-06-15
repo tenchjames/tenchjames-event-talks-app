@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshBtn = document.getElementById('refreshBtn');
     const refreshIcon = document.getElementById('refreshIcon');
     const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
     const statusIndicator = document.getElementById('statusIndicator');
     const statusText = document.getElementById('statusText');
     
@@ -643,6 +645,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // Modal Action Buttons
     copyTweetBtn.addEventListener('click', copyTweetText);
     shareTweetBtn.addEventListener('click', shareTweet);
+
+    // Theme Toggle Initialization & Event Listener
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        themeIcon.textContent = 'dark_mode';
+    } else {
+        document.body.classList.remove('light-mode');
+        themeIcon.textContent = 'light_mode';
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+        const isLight = document.body.classList.toggle('light-mode');
+        if (isLight) {
+            localStorage.setItem('theme', 'light');
+            themeIcon.textContent = 'dark_mode';
+            showToast('Switched to Light Mode', 'info');
+        } else {
+            localStorage.setItem('theme', 'dark');
+            themeIcon.textContent = 'light_mode';
+            showToast('Switched to Dark Mode', 'info');
+        }
+    });
 
     // Initial Load
     fetchReleaseNotes(false);

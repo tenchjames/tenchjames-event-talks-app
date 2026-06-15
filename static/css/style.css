@@ -63,6 +63,50 @@
     --modal-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.6);
 }
 
+/* Light Theme Overrides */
+body.light-mode {
+    --bg-dark: #f8fafc;
+    --bg-panel: rgba(255, 255, 255, 0.7);
+    --bg-card: rgba(241, 245, 249, 0.85);
+    --bg-card-hover: rgba(226, 232, 240, 0.95);
+    --bg-input: rgba(255, 255, 255, 0.9);
+    --border-color: rgba(15, 23, 42, 0.08);
+    --border-color-hover: rgba(15, 23, 42, 0.16);
+    
+    /* Text Colors */
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-bright: #0f172a;
+
+    --card-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+    --card-shadow-hover: 0 12px 30px -4px rgba(59, 130, 246, 0.1);
+    --modal-shadow: 0 24px 64px -12px rgba(15, 23, 42, 0.15);
+}
+
+body.light-mode .bg-gradient-orb {
+    opacity: 0.06;
+}
+
+body.light-mode .update-card-body code {
+    background-color: rgba(15, 23, 42, 0.06);
+    color: #c2410c;
+    border: 1px solid rgba(15, 23, 42, 0.04);
+}
+
+body.light-mode .note-preview-mini {
+    background: rgba(15, 23, 42, 0.03);
+}
+
+body.light-mode .tweet-textarea {
+    background: #ffffff;
+    color: var(--text-primary);
+}
+
+body.light-mode .modal-backdrop {
+    background-color: rgba(15, 23, 42, 0.3);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -77,6 +121,7 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
+    transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 /* Background visual accents - Ambient Orbs */
